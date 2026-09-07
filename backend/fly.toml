@@ -1,0 +1,41 @@
+# fly.toml app configuration file generated for servissync on 2026-09-07T11:22:16Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'servissync'
+console_command = '/code/manage.py shell'
+primary_region = 'ams'
+
+[deploy]
+  release_command = 'python manage.py migrate --noinput'
+
+[env]
+  PORT = '8000'
+
+[http_service]
+  auto_start_machines = true
+  auto_stop_machines = true
+  force_https = true
+  internal_port = 8080
+  min_machines_running = 0
+  processes = ['app']
+
+[[statics]]
+  guest_path = '/code/static'
+  tigris_bucket = ''
+  url_prefix = '/static/'
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory = '1gb'
+  memory_mb = 256
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 8
+  memory = '2gb'
+  memory_mb = 2048
+  processes = ['app']
+  size = 'shared-cpu-8x'
