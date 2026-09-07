@@ -2,7 +2,7 @@
   "name": "ServisSync",
   "short_name": "ServisSync",
   "description": "Şoför Mobil Yoklama Sistemi",
-  "start_url": "/driver",
+  "start_url": "/driver/dashboard",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",

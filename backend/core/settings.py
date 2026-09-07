@@ -17,7 +17,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ── Güvenlik ──
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-dev-key-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() in ("true", "1", "yes")
-ALLOWED_HOSTS = ["*"]  # Fly.io ve lokal testler için tüm hostlara izin ver
+ALLOWED_HOSTS = [
+    "servissync.fly.dev",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 # ── Uygulamalar ──
@@ -51,8 +55,13 @@ MIDDLEWARE = [
 ]
 
 
-# ── CORS Ayarları (React dev sunucusu) ──
-CORS_ALLOW_ALL_ORIGINS = True
+# ── CORS Ayarları (React & Vercel) ──
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://frontend-ten-nu-93.vercel.app",
+]
 CORS_ALLOW_CREDENTIALS = True
 
 

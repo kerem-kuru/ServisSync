@@ -1,4 +1,4 @@
-import { Routes, Route, Outlet } from 'react-router-dom'
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import OverviewPage from './pages/OverviewPage'
@@ -66,6 +66,7 @@ export default function App() {
 
       {/* Mobile Driver Routes */}
       <Route path="/driver" element={<DriverLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<DriverDashboard />} />
       </Route>
     </Routes>

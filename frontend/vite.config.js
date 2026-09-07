@@ -18,7 +18,7 @@ export default defineConfig({
         theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/driver',
+        start_url: '/driver/dashboard',
         icons: [
           {
             src: 'pwa-192x192.png',
