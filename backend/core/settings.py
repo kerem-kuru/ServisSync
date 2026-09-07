@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ── Güvenlik ──
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-dev-key-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() in ("true", "1", "yes")
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = ["*"]  # Fly.io ve lokal testler için tüm hostlara izin ver
 
 
 # ── Uygulamalar ──
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",          # CORS — en üste
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",     # <-- Fly.io statik dosyaları için eklendi
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -123,6 +124,8 @@ USE_TZ = True
 
 # ── Statik dosyalar ──
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # ── Varsayılan PK tipi ──
