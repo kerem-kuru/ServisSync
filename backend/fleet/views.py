@@ -420,6 +420,8 @@ class DeleteCompanyView(APIView):
         return Response({"detail": "Hesap başarıyla silindi."}, status=status.HTTP_204_NO_CONTENT)
 
 
+from django.core import signing
+
 # ════════════════════════════════════════════════════════════════
 # Şoför Özel — Login
 # ════════════════════════════════════════════════════════════════
@@ -427,8 +429,7 @@ class DriverLoginView(APIView):
     """
     POST /api/fleet/driver/login/
     Şoför telefon numarasıyla giriş yapar.
-    Eşleşen aracı ve araçtaki öğrencileri döner.
-    (MVP — SMS doğrulaması yerine direkt telefon kontrolü.)
+    Güvenli (Signed) Token üretir ve IDOR/SMS Bombing koruması için döner.
     """
 
     def post(self, request):
@@ -452,7 +453,11 @@ class DriverLoginView(APIView):
             vehicle=vehicle, is_active=True
         ).order_by("last_name", "first_name")
 
+        # IDOR Koruması için şoföre (araca) özel güvenli token oluştur (1 Günlük)
+        token = signing.dumps({"vehicle_id": str(vehicle.id)})
+
         response_data = {
+            "token": token,
             "vehicle": VehicleSerializer(vehicle).data,
             "students": StudentSerializer(students, many=True).data,
         }
@@ -472,6 +477,18 @@ class AttendanceLogCreateView(APIView):
     """
 
     def post(self, request):
+        # 1) TOKEN DOĞRULAMASI (KİMLİK KONTROLÜ)
+        token = request.headers.get("X-Driver-Token")
+        if not token:
+            return Response({"detail": "Giriş yapmanız gerekiyor (Token eksik)."}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        try:
+            # Token geçerlilik süresi: 1 Gün (86400 saniye)
+            data = signing.loads(token, max_age=86400)
+            driver_vehicle_id = data.get("vehicle_id")
+        except signing.BadSignature:
+            return Response({"detail": "Geçersiz veya süresi dolmuş oturum. Tekrar giriş yapın."}, status=status.HTTP_401_UNAUTHORIZED)
+
         serializer = AttendanceLogCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -487,10 +504,11 @@ class AttendanceLogCreateView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not student.vehicle:
+        # 2) IDOR KONTROLÜ (YETKİ KONTROLÜ)
+        if not student.vehicle or str(student.vehicle.id) != driver_vehicle_id:
             return Response(
-                {"detail": "Öğrencinin atanmış bir aracı yok."},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"detail": "Bu öğrenciye SMS atma yetkiniz yok!"},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         attendance_log = AttendanceLog.objects.create(

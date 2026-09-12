@@ -25,6 +25,7 @@ export default function DriverDashboard() {
   }, [navigate])
 
   const handleLogout = () => {
+    localStorage.removeItem('driver_token')
     localStorage.removeItem('driver_vehicle')
     localStorage.removeItem('driver_students')
     navigate('/login')

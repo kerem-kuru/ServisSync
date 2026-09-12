@@ -14,6 +14,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Token ${token}`
     }
+    
+    // Şoför Token'ı varsa ekle (IDOR & SMS Bombing koruması)
+    const driverToken = localStorage.getItem('driver_token')
+    if (driverToken) {
+      config.headers['X-Driver-Token'] = driverToken
+    }
+    
     return config
   },
   (error) => Promise.reject(error)

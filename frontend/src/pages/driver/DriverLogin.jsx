@@ -26,8 +26,12 @@ export default function DriverLogin() {
 
     try {
       const res = await driverApi.login(phone)
-      // Save data to localStorage
-      localStorage.setItem('driverData', JSON.stringify(res.data))
+      
+      // Güvenlik & Dashboard için gerekli verileri localStorage'a kaydet
+      localStorage.setItem('driver_token', res.data.token)
+      localStorage.setItem('driver_vehicle', JSON.stringify(res.data.vehicle))
+      localStorage.setItem('driver_students', JSON.stringify(res.data.students))
+      
       // Redirect to dashboard
       navigate('/driver/dashboard')
     } catch (err) {
